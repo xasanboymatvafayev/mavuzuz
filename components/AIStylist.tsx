@@ -11,7 +11,8 @@ interface AIStylistProps {
 
 const AIStylist: React.FC<AIStylistProps> = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: "Salom! Men MaviBoutique-ning AI stilistiman. Sizga kiyim tanlashda yoki kiyinish uslubingizni yaxshilashda yordam beraman. Qanday savolingiz bor?" }
+    // Added missing timestamp
+    { role: 'model', text: "Salom! Men MaviBoutique-ning AI stilistiman. Sizga kiyim tanlashda yoki kiyinish uslubingizni yaxshilashda yordam beraman. Qanday savolingiz bor?", timestamp: new Date().toISOString() }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +29,8 @@ const AIStylist: React.FC<AIStylistProps> = ({ isOpen, onClose }) => {
 
     const userMsg = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    // Added missing timestamp
+    setMessages(prev => [...prev, { role: 'user', text: userMsg, timestamp: new Date().toISOString() }]);
     setIsLoading(true);
 
     try {
@@ -52,10 +54,12 @@ const AIStylist: React.FC<AIStylistProps> = ({ isOpen, onClose }) => {
 
       // Directly access the text property from the response object
       const aiText = response.text || "Uzr, hozircha javob bera olmayman. Iltimos qaytadan urinib ko'ring.";
-      setMessages(prev => [...prev, { role: 'model', text: aiText }]);
+      // Added missing timestamp
+      setMessages(prev => [...prev, { role: 'model', text: aiText, timestamp: new Date().toISOString() }]);
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'model', text: "Texnik nosozlik yuz berdi. Iltimos, birozdan so'ng qayta urinib ko'ring." }]);
+      // Added missing timestamp
+      setMessages(prev => [...prev, { role: 'model', text: "Texnik nosozlik yuz berdi. Iltimos, birozdan so'ng qayta urinib ko'ring.", timestamp: new Date().toISOString() }]);
     } finally {
       setIsLoading(false);
     }

@@ -17,7 +17,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, products, setP
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState<'products' | 'promos'>('products');
   const [newProduct, setNewProduct] = useState<Partial<Product>>({ category: 'sotuv', size: ['M'], available: true, images: [] });
-  const [newPromo, setNewPromo] = useState<PromoCode>({ code: '', discountPercent: 0 });
+  // Fixed missing properties for PromoCode initialization
+  const [newPromo, setNewPromo] = useState<PromoCode>({ 
+    code: '', 
+    discountPercent: 0,
+    expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    minOrderAmount: 0,
+    isActive: true
+  });
 
   if (!isOpen) return null;
 
@@ -51,16 +58,31 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, products, setP
       alert("Ma'lumotlarni to'liq kiriting (kamida 1 ta rasm)");
       return;
     }
+    // Fixed missing mandatory properties for Product
     const p: Product = {
       id: Math.random().toString(36).substr(2, 9),
       name: newProduct.name!,
       description: newProduct.description || '',
+      longDescription: newProduct.description || '',
       price: Number(newProduct.price),
       images: newProduct.images || [],
       category: newProduct.category as Category,
       size: newProduct.size || ['M'],
       color: newProduct.color || 'Standart',
-      available: true
+      fabric: 'Standart',
+      season: 'Barcha fasllar',
+      brand: 'Mavi Exclusive',
+      available: true,
+      rating: 5,
+      reviewsCount: 0,
+      createdAt: new Date().toISOString(),
+      tags: [],
+      stock: 10,
+      specifications: {
+        length: 'N/A',
+        waist: 'N/A',
+        shoulders: 'N/A'
+      }
     };
     setProducts([p, ...products]);
     setNewProduct({ category: 'sotuv', size: ['M'], available: true, images: [] });
@@ -191,7 +213,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, products, setP
                   type="number" placeholder="Chegirma %" className="w-full p-3 rounded-xl border-none outline-none text-sm"
                   value={newPromo.discountPercent || ''} onChange={e => setNewPromo({...newPromo, discountPercent: Number(e.target.value)})}
                 />
-                <button onClick={() => { setPromoCodes([...promoCodes, newPromo]); setNewPromo({code:'', discountPercent:0}); }} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold">Qo'shish</button>
+                <button onClick={() => { setPromoCodes([...promoCodes, newPromo]); setNewPromo({code:'', discountPercent:0, expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), minOrderAmount: 0, isActive: true}); }} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold">Qo'shish</button>
               </div>
 
               <div className="space-y-2">
