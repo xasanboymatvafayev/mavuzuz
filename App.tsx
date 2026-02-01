@@ -9,7 +9,8 @@ import {
 import { Category, Product, CartItem, PromoCode, OrderData, StoreLocation, Review } from './types.ts';
 import { 
   MOCK_PRODUCTS, MOCK_PROMOS, CATEGORIES, STORE_LOCATIONS, 
-  getPriceString, generateId, APP_NAME, APP_VERSION, UI_STRINGS 
+  getPriceString, generateId, APP_NAME, APP_VERSION, UI_STRINGS,
+  LOCAL_STORAGE_KEYS
 } from './constants.tsx';
 import ProductCard from './components/ProductCard.tsx';
 import Cart from './components/Cart.tsx';
@@ -24,8 +25,19 @@ declare global {
 
 const App: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
-  const [promoCodes, setPromoCodes] = useState<PromoCode[]>(MOCK_PROMOS);
+  
+  // Mahsulotlar ro'yxati (Lokal xotiradan yuklanadi va saqlanadi)
+  // Eslatma: Qurilmalar o'rtasida sinxronizatsiya uchun haqiqiy ma'lumotlar bazasi va backend kerak.
+  const [products, setProducts] = useState<Product[]>(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.CART + '_products');
+    return saved ? JSON.parse(saved) : MOCK_PRODUCTS;
+  });
+
+  const [promoCodes, setPromoCodes] = useState<PromoCode[]>(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.CART + '_promos');
+    return saved ? JSON.parse(saved) : MOCK_PROMOS;
+  });
+
   const [activeCategory, setActiveCategory] = useState<Category>('sotuv');
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -44,6 +56,14 @@ const App: React.FC = () => {
   });
   const [activeTab, setActiveTab] = useState<'catalog' | 'reviews' | 'locations'>('catalog');
   const [recentViews, setRecentViews] = useState<string[]>([]);
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.CART + '_products', JSON.stringify(products));
+  }, [products]);
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.CART + '_promos', JSON.stringify(promoCodes));
+  }, [promoCodes]);
 
   useEffect(() => {
     if (window.Telegram?.WebApp) {
