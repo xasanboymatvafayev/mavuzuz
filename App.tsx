@@ -1,12 +1,12 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { ShoppingCart, Search, MessageSquare, Package, RotateCcw, X, Plus, Settings, ShieldCheck, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Category, Product, CartItem, PromoCode } from './types';
-import { MOCK_PRODUCTS } from './constants';
-import ProductCard from './components/ProductCard';
-import Cart from './components/Cart';
-import AIStylist from './components/AIStylist';
-import AdminPanel from './components/AdminPanel';
+import { Category, Product, CartItem, PromoCode } from './types.ts';
+import { MOCK_PRODUCTS } from './constants.tsx';
+import ProductCard from './components/ProductCard.tsx';
+import Cart from './components/Cart.tsx';
+import AIStylist from './components/AIStylist.tsx';
+import AdminPanel from './components/AdminPanel.tsx';
 
 declare global {
   interface Window {
