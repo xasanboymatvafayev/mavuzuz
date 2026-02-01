@@ -25,19 +25,8 @@ declare global {
 
 const App: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
-  
-  // Mahsulotlar ro'yxati (Lokal xotiradan yuklanadi va saqlanadi)
-  // Eslatma: Qurilmalar o'rtasida sinxronizatsiya uchun haqiqiy ma'lumotlar bazasi va backend kerak.
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.CART + '_products');
-    return saved ? JSON.parse(saved) : MOCK_PRODUCTS;
-  });
-
-  const [promoCodes, setPromoCodes] = useState<PromoCode[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.CART + '_promos');
-    return saved ? JSON.parse(saved) : MOCK_PROMOS;
-  });
-
+  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
+  const [promoCodes, setPromoCodes] = useState<PromoCode[]>(MOCK_PROMOS);
   const [activeCategory, setActiveCategory] = useState<Category>('sotuv');
   const [searchQuery, setSearchQuery] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -57,13 +46,57 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'catalog' | 'reviews' | 'locations'>('catalog');
   const [recentViews, setRecentViews] = useState<string[]>([]);
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.CART + '_products', JSON.stringify(products));
-  }, [products]);
+  const saveToCloud = (key: string, data: any) => {
+    const stringData = JSON.stringify(data);
+    if (window.Telegram?.WebApp?.CloudStorage) {
+      window.Telegram.WebApp.CloudStorage.setItem(key, stringData, (err: any, success: boolean) => {
+        if (err) console.error('CloudStorage error:', err);
+      });
+    }
+    localStorage.setItem(key, stringData);
+  };
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.CART + '_promos', JSON.stringify(promoCodes));
-  }, [promoCodes]);
+    const loadData = async () => {
+      if (window.Telegram?.WebApp?.CloudStorage) {
+        window.Telegram.WebApp.CloudStorage.getItem('mavi_products', (err: any, value: string) => {
+          if (!err && value) {
+            try {
+              setProducts(JSON.parse(value));
+            } catch (e) {
+              setProducts(MOCK_PRODUCTS);
+            }
+          }
+        });
+        window.Telegram.WebApp.CloudStorage.getItem('mavi_promos', (err: any, value: string) => {
+          if (!err && value) {
+            try {
+              setPromoCodes(JSON.parse(value));
+            } catch (e) {
+              setPromoCodes(MOCK_PROMOS);
+            }
+          }
+        });
+      } else {
+        const savedProducts = localStorage.getItem('mavi_products');
+        if (savedProducts) setProducts(JSON.parse(savedProducts));
+        const savedPromos = localStorage.getItem('mavi_promos');
+        if (savedPromos) setPromoCodes(JSON.parse(savedPromos));
+      }
+      setIsLoaded(true);
+    };
+    loadData();
+  }, []);
+
+  const updateProducts = (newProducts: Product[]) => {
+    setProducts(newProducts);
+    saveToCloud('mavi_products', newProducts);
+  };
+
+  const updatePromoCodes = (newPromos: PromoCode[]) => {
+    setPromoCodes(newPromos);
+    saveToCloud('mavi_promos', newPromos);
+  };
 
   useEffect(() => {
     if (window.Telegram?.WebApp) {
@@ -78,13 +111,11 @@ const App: React.FC = () => {
         tg.MainButton.hide();
       }
     }
-    const timer = setTimeout(() => setIsLoaded(true), 1500);
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 400);
     };
     window.addEventListener('scroll', handleScroll);
     return () => {
-      clearTimeout(timer);
       window.removeEventListener('scroll', handleScroll);
     };
   }, [cartItems]);
@@ -527,9 +558,9 @@ const App: React.FC = () => {
         isOpen={isAdminOpen} 
         onClose={() => setIsAdminOpen(false)}
         products={products}
-        setProducts={setProducts}
+        setProducts={updateProducts}
         promoCodes={promoCodes}
-        setPromoCodes={setPromoCodes}
+        setPromoCodes={updatePromoCodes}
       />
 
       {selectedProduct && (
