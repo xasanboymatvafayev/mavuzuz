@@ -1,8 +1,8 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, Sparkles, User, Bot, Loader2 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { Message } from '../types';
+import { generateId } from '../constants';
 
 interface AIStylistProps {
   isOpen: boolean;
@@ -11,8 +11,13 @@ interface AIStylistProps {
 
 const AIStylist: React.FC<AIStylistProps> = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState<Message[]>([
-    // Added missing timestamp
-    { role: 'model', text: "Salom! Men MaviBoutique-ning AI stilistiman. Sizga kiyim tanlashda yoki kiyinish uslubingizni yaxshilashda yordam beraman. Qanday savolingiz bor?", timestamp: new Date().toISOString() }
+    // Added missing timestamp and id
+    { 
+      role: 'model', 
+      text: "Salom! Men MaviBoutique-ning AI stilistiman. Sizga kiyim tanlashda yoki kiyinish uslubingizni yaxshilashda yordam beraman. Qanday savolingiz bor?", 
+      timestamp: new Date().toISOString(),
+      id: generateId()
+    }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,8 +34,13 @@ const AIStylist: React.FC<AIStylistProps> = ({ isOpen, onClose }) => {
 
     const userMsg = input.trim();
     setInput('');
-    // Added missing timestamp
-    setMessages(prev => [...prev, { role: 'user', text: userMsg, timestamp: new Date().toISOString() }]);
+    // Added missing timestamp and id
+    setMessages(prev => [...prev, { 
+      role: 'user', 
+      text: userMsg, 
+      timestamp: new Date().toISOString(),
+      id: generateId()
+    }]);
     setIsLoading(true);
 
     try {
@@ -54,12 +64,22 @@ const AIStylist: React.FC<AIStylistProps> = ({ isOpen, onClose }) => {
 
       // Directly access the text property from the response object
       const aiText = response.text || "Uzr, hozircha javob bera olmayman. Iltimos qaytadan urinib ko'ring.";
-      // Added missing timestamp
-      setMessages(prev => [...prev, { role: 'model', text: aiText, timestamp: new Date().toISOString() }]);
+      // Added missing timestamp and id
+      setMessages(prev => [...prev, { 
+        role: 'model', 
+        text: aiText, 
+        timestamp: new Date().toISOString(),
+        id: generateId()
+      }]);
     } catch (error) {
       console.error(error);
-      // Added missing timestamp
-      setMessages(prev => [...prev, { role: 'model', text: "Texnik nosozlik yuz berdi. Iltimos, birozdan so'ng qayta urinib ko'ring.", timestamp: new Date().toISOString() }]);
+      // Added missing timestamp and id
+      setMessages(prev => [...prev, { 
+        role: 'model', 
+        text: "Texnik nosozlik yuz berdi. Iltimos, birozdan so'ng qayta urinib ko'ring.", 
+        timestamp: new Date().toISOString(),
+        id: generateId()
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +116,7 @@ const AIStylist: React.FC<AIStylistProps> = ({ isOpen, onClose }) => {
           className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 no-scrollbar"
         >
           {messages.map((m, idx) => (
-            <div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div key={m.id || idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] flex gap-2 ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${m.role === 'user' ? 'bg-blue-100 text-blue-600' : 'bg-white text-slate-400 border border-slate-100 shadow-sm'}`}>
                   {m.role === 'user' ? <User size={14} /> : <Bot size={14} />}
