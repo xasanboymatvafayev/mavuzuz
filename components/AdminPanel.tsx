@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { X, Plus, Trash2, Tag, Edit2, Lock, Image as ImageIcon, HardDrive, Cloud, AlertCircle, RefreshCw } from 'lucide-react';
 import { Product, PromoCode, Category } from '../types';
@@ -142,7 +143,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, products, setP
                 </span>
               ) : (
                 <span className="text-[8px] font-black uppercase text-orange-600 flex items-center gap-1 bg-orange-50 px-1.5 py-0.5 rounded">
-                  <HardDrive size={8} /> Local Storage (Faqat shu brauzerda)
+                  <HardDrive size={8} /> Local Storage (Eski Telegram yoki Brauzer)
                 </span>
               )}
             </div>
@@ -154,7 +155,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, products, setP
           <div className="mx-4 mt-4 p-3 bg-orange-50 border border-orange-100 rounded-xl flex gap-3 items-start animate-pulse">
             <AlertCircle size={16} className="text-orange-600 flex-shrink-0 mt-0.5" />
             <p className="text-[10px] text-orange-700 font-medium leading-tight">
-              Siz hozirda oddiy brauzerda (noutbukda) ishlayapsiz. Qo'shgan kiyimlaringiz boshqa foydalanuvchilarga (va telefoningizga) ko'rinishi uchun ularni Telegram ilovasi ichida turib qo'shishingiz tavsiya etiladi.
+              Siz hozirda oddiy brauzerda yoki eski Telegram versiyasidasiz. Qo'shgan kiyimlaringiz boshqa foydalanuvchilarga ko'rinishi uchun yangi Telegram ilovasi ichida turib qo'shishingiz tavsiya etiladi.
             </p>
           </div>
         )}
@@ -244,47 +245,4 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose, products, setP
               </div>
             </>
           ) : (
-            <div className="space-y-6">
-              <div className="bg-emerald-50 p-5 rounded-2xl space-y-3 border border-emerald-100">
-                <h3 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Yangi promokod</h3>
-                <input 
-                  type="text" placeholder="KOD (masalan: MAVI25)" className="w-full p-3.5 rounded-xl border-none outline-none text-sm uppercase font-mono font-bold placeholder:text-emerald-300"
-                  value={newPromo.code} onChange={e => setNewPromo({...newPromo, code: e.target.value.toUpperCase()})}
-                />
-                <input 
-                  type="number" placeholder="Chegirma %" className="w-full p-3.5 rounded-xl border-none outline-none text-sm font-bold"
-                  value={newPromo.discountPercent || ''} onChange={e => setNewPromo({...newPromo, discountPercent: Number(e.target.value)})}
-                />
-                <button onClick={() => { setPromoCodes([...promoCodes, newPromo]); setNewPromo({code:'', discountPercent:0, expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), minOrderAmount: 0, isActive: true, usageLimit: 1000, currentUsage: 0, description: 'Manual added promo'}); }} className="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-emerald-100 active:scale-95 transition-all">Promokodni Faollashtirish</button>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mavjud promokodlar</h4>
-                {promoCodes.map(pc => (
-                  <div key={pc.code} className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center font-mono font-black text-xs">%</div>
-                      <div>
-                        <p className="font-mono font-black text-sm text-slate-800 tracking-wider">{pc.code}</p>
-                        <p className="text-[10px] text-emerald-600 font-black">-{pc.discountPercent}% Chegirma</p>
-                      </div>
-                    </div>
-                    <button onClick={() => setPromoCodes(promoCodes.filter(x => x.code !== pc.code))} className="text-slate-200 p-2 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-        
-        <div className="p-4 bg-slate-50 border-t">
-           <button onClick={() => window.location.reload()} className="w-full py-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center justify-center gap-2 hover:bg-slate-100 transition-all">
-             <RefreshCw size={12} /> Ma'lumotlarni Yangilash
-           </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default AdminPanel;
+            <div className="space-

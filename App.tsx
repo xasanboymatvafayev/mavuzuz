@@ -40,50 +40,65 @@ const App: React.FC = () => {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [notification, setNotification] = useState<{message: string, type: 'info' | 'success'} | null>(null);
-  const [activeTab, setActiveTab] = useState<'catalog' | 'reviews' | 'locations'>('catalog');
+
+  // Helper to check CloudStorage support
+  const isCloudStorageSupported = () => {
+    return !!(window.Telegram?.WebApp?.isVersionAtLeast && 
+              window.Telegram.WebApp.isVersionAtLeast('6.9') && 
+              window.Telegram.WebApp.CloudStorage);
+  };
 
   // Markaziy saqlash funksiyasi
   const saveToCloud = (key: string, data: any) => {
     const stringData = JSON.stringify(data);
-    if (window.Telegram?.WebApp?.CloudStorage) {
+    if (isCloudStorageSupported()) {
       window.Telegram.WebApp.CloudStorage.setItem(key, stringData, (err: any) => {
         if (err) console.error('Cloud Sync Error:', err);
       });
     }
+    // Always fallback/parallel to localStorage
     localStorage.setItem(key, stringData);
   };
 
   useEffect(() => {
     const loadData = async () => {
-      const isTG = !!window.Telegram?.WebApp?.CloudStorage;
-      setStorageType(isTG ? 'cloud' : 'local');
+      const hasCloud = isCloudStorageSupported();
+      setStorageType(hasCloud ? 'cloud' : 'local');
 
-      if (isTG) {
-        // Telegram muhitida
+      if (hasCloud) {
+        // Telegram CloudStorage'dan yuklash
         window.Telegram.WebApp.CloudStorage.getItem('mavi_initialized', (err: any, init: string) => {
           if (!err && init === 'true') {
             window.Telegram.WebApp.CloudStorage.getItem('mavi_products', (err2: any, val: string) => {
-              setProducts(!err2 && val ? JSON.parse(val) : []);
+              if (!err2 && val) {
+                setProducts(JSON.parse(val));
+              } else {
+                // Initialized but no products found (maybe all deleted)
+                setProducts([]);
+              }
               setIsLoaded(true);
             });
           } else {
             // Birinchi marta kirish
-            setProducts(MOCK_PRODUCTS);
-            saveToCloud('mavi_products', MOCK_PRODUCTS);
+            const savedLocal = localStorage.getItem('mavi_products');
+            const initialProducts = savedLocal ? JSON.parse(savedLocal) : MOCK_PRODUCTS;
+            
+            setProducts(initialProducts);
+            saveToCloud('mavi_products', initialProducts);
             saveToCloud('mavi_initialized', 'true');
             setIsLoaded(true);
           }
         });
       } else {
-        // Oddiy brauzerda
+        // Oddiy brauzerda yoki eski Telegram versiyasida
         const init = localStorage.getItem('mavi_initialized');
         if (init === 'true') {
           const saved = localStorage.getItem('mavi_products');
           setProducts(saved ? JSON.parse(saved) : []);
         } else {
+          // Birinchi marta
           setProducts(MOCK_PRODUCTS);
           localStorage.setItem('mavi_products', JSON.stringify(MOCK_PRODUCTS));
           localStorage.setItem('mavi_initialized', 'true');
@@ -144,7 +159,6 @@ const App: React.FC = () => {
           <h1 className="font-serif text-xl font-black text-blue-950">{APP_NAME}</h1>
           <div className="flex items-center gap-1">
             <span className="text-[8px] text-slate-400 font-black uppercase tracking-widest">Premium Quality</span>
-            {/* Fix: Wrapped Lucide icons in spans to provide tooltips since the 'title' prop is not supported directly by the icon components */}
             {storageType === 'local' && <span title="Local Storage"><HardDrive size={8} className="text-orange-400" /></span>}
             {storageType === 'cloud' && <span title="Cloud Sync Active"><Cloud size={8} className="text-blue-400" /></span>}
           </div>
