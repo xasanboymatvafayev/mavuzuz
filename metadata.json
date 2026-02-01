@@ -1,0 +1,7 @@
+{
+  "name": "MaviBoutique - Elegant Kiyimlar Olami",
+  "description": "MaviBoutique uchun maxsus Telegram Mini App: Sotiladigan va ijaraga beriladigan eksklyuziv ko'ylaklar katalogi hamda AI stilist yordamchisi.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
